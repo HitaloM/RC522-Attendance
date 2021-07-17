@@ -1,0 +1,7 @@
+logs
+__pycache__
+cards.json
+venv
+.mypy_cache
+.vscode
+*.sqlite
