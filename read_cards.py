@@ -47,6 +47,29 @@ def add_line_to_csv(lines):
         csv_writer.writerow(lines)
 
 
+def ativar_servo():
+    # Configure o pino do servo motor
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(37, GPIO.OUT)
+
+    # Crie um objeto PWM para controlar o servo motor
+    servo = GPIO.PWM(37, 50)
+
+    # Inicie o PWM com a frequência de 50 Hz
+    servo.start(0)
+
+    # Faça o servo motor girar 90 graus
+    servo.ChangeDutyCycle(2.5)
+    time.sleep(6)
+
+    # Retorne o servo motor para a posição inicial de 0 graus
+    servo.ChangeDutyCycle(7.5)
+    time.sleep(1)
+
+    # Interrompa o PWM
+    servo.stop()
+
+
 # Cria uma classe que herda de Thread para controlar os LEDs RGB
 class LedThread(threading.Thread):
     def __init__(self, pin):
@@ -82,6 +105,7 @@ try:
                 )
                 verde = LedThread(12)  # Cria uma thread para o LED verde
                 verde.start()  # Inicia a thread
+                ativar_servo()
             else:
                 print(f"Até logo, {usuario[1]}!")
                 # Limpa o campo entrada
@@ -92,6 +116,7 @@ try:
                 add_line_to_csv(line_str)
                 azul = LedThread(36)  # Cria uma thread para o LED azul
                 azul.start()  # Inicia a thread
+                ativar_servo()
             db.commit()  # Salva as alterações no banco de dados
         else:
             print("ID de cartão não encontrado.")
