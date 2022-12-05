@@ -39,7 +39,7 @@ def add_line_to_csv(lines):
             writer.writerow(["ID", "Nome", "Entrada", "Saída"])
 
     # Abra o arquivo CSV em modo de escrita
-    with open(filename, "w") as csvfile:
+    with open(filename, "a", newline="") as csvfile:
         # Crie um objeto de escrita para o arquivo CSV
         csv_writer = csv.writer(csvfile)
 
