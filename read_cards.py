@@ -3,6 +3,7 @@ import datetime
 import os
 import sqlite3
 import threading
+import time
 
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
@@ -26,7 +27,7 @@ cursor.execute(
 )
 
 
-def add_lines_to_csv(lines):
+def add_line_to_csv(lines):
     # Gere o nome do arquivo com base na data atual
     filename = f"presenca_semanal_{datetime.date.today().strftime('%Y-%m-%d')}.csv"
 
@@ -43,7 +44,7 @@ def add_lines_to_csv(lines):
         csv_writer = csv.writer(csvfile)
 
         # Escreva as linhas no arquivo CSV
-        csv_writer.writerows(lines)
+        csv_writer.writerow(lines)
 
 
 # Cria uma classe que herda de Thread para controlar os LEDs RGB
@@ -58,6 +59,9 @@ class LedThread(threading.Thread):
         GPIO.setup(self.pin, GPIO.OUT)
         # Acende o LED
         GPIO.output(self.pin, GPIO.HIGH)
+        # Aguarda 3 segundo e depos apaga o LED
+        time.sleep(3)
+        GPIO.output(self.pin, GPIO.LOW)
 
 
 try:
@@ -84,7 +88,8 @@ try:
                 cursor.execute("UPDATE usuarios SET entrada=NULL WHERE id=?", (id,))
                 # Adiciona ID, nome, entrada e saída no arquivo csv
                 line = [id, usuario[1], usuario[2], datetime.datetime.now()]
-                add_lines_to_csv(line)
+                line_str = map(str, line)
+                add_line_to_csv(line_str)
                 azul = LedThread(36)  # Cria uma thread para o LED azul
                 azul.start()  # Inicia a thread
             db.commit()  # Salva as alterações no banco de dados
