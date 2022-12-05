@@ -41,7 +41,9 @@ try:
         )
         db.commit()
 
-except KeyboardInterrupt:
+except KeyboardInterrupt:  # Se o usuário pressionar Ctrl+C
+    print("Programa encerrado.")
+finally:
     # Fecha a conexão com o banco de dados
     db.close()
 

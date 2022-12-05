@@ -122,6 +122,8 @@ try:
             print("ID de cartão não encontrado.")
             vermelho = LedThread(7)  # Cria uma thread para o LED vermelho
             vermelho.start()  # Inicia a thread
+except KeyboardInterrupt:  # Se o usuário pressionar Ctrl+C
+    print("Programa encerrado.")
 finally:
     # Fecha a conexão com o banco de dados
     db.close()
