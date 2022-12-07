@@ -185,7 +185,7 @@ try:
                     time="",
                     date=datetime.date.today().strftime("%d/%m/%Y"),
                 )
-                # ativar_servo()
+                ativar_servo()
             else:
                 print(f"Até logo, {usuario[1]}!")
                 entrada = usuario[2]  # Armazena a hora de entrada antes de ser limpada
@@ -210,7 +210,7 @@ try:
                     time=time_diff,
                     date=datetime.date.today().strftime("%d/%m/%Y"),
                 )
-                # ativar_servo()
+                ativar_servo()
             db.commit()  # Salva as alterações no banco de dados
             # Aplica as alterações na interface gráfica
             tkui.update()
