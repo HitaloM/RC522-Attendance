@@ -4,6 +4,7 @@ import os
 import sqlite3
 import threading
 import time
+import tkinter as tk
 
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
@@ -25,6 +26,75 @@ cursor.execute(
     )
     """
 )
+
+
+class App(tk.Tk):
+    def __init__(self, master):
+        # Criar frames
+        self.frame_left = tk.Frame(master)
+        self.frame_right = tk.Frame(master)
+
+        # Adicionar frames ao widget principal
+        self.frame_left.pack(side="left", fill="both", expand=True)
+        self.frame_right.pack(side="right", fill="both", expand=True)
+
+        # Criar elementos na esquerda
+        self.image = tk.PhotoImage(file="image.png")
+        self.image_label = tk.Label(self.frame_left, image=self.image)
+        self.image_label.pack(side="left", fill="both", expand=True)
+
+        self.time_divider = tk.Frame(self.frame_right, height=2, bd=1, relief="sunken")
+        self.date_divider = tk.Frame(self.frame_right, height=2, bd=1, relief="sunken")
+
+        self.name_label = tk.Label(
+            self.frame_right, text="Nome:", font=("Helvetica", 20)
+        )
+        self.name_label.grid(row=0, column=0)
+        self.name = tk.Label(self.frame_right, text="", font=("Helvetica", 20))
+        self.name.grid(row=0, column=1)
+
+        self.enter_label = tk.Label(
+            self.frame_right, text="Entrada:", font=("Helvetica", 20)
+        )
+        self.enter_label.grid(row=1, column=0)
+        self.enter = tk.Label(self.frame_right, text="", font=("Helvetica", 20))
+        self.enter.grid(row=1, column=1)
+
+        self.left_label = tk.Label(
+            self.frame_right, text="Saída:", font=("Helvetica", 20)
+        )
+        self.left_label.grid(row=2, column=0)
+        self.left = tk.Label(self.frame_right, text="", font=("Helvetica", 20))
+        self.left.grid(row=2, column=1)
+
+        self.time_label = tk.Label(
+            self.frame_right, text="Tempo:", font=("Helvetica", 20)
+        )
+        self.time_label.grid(row=3, column=0)
+        self.time = tk.Label(self.frame_right, text="", font=("Helvetica", 20))
+        self.time.grid(row=3, column=1)
+
+        self.date_label = tk.Label(
+            self.frame_right, text="Data:", font=("Helvetica", 20)
+        )
+        self.date_label.grid(row=4, column=0)
+        self.date = tk.Label(self.frame_right, text="", font=("Helvetica", 20))
+        self.date.grid(row=4, column=1)
+
+        self.update_info("", "", "", "", "")
+
+    def update_info(self, name, enter, left, time, date):
+        self.name.configure(text=name)
+        self.enter.configure(text=enter)
+        self.left.configure(text=left)
+        self.time.configure(text=time)
+        self.date.configure(text=date)
+
+
+# Criar widget principal
+tkui = tk.Tk()
+# Criar instância da classe
+iterface = App(tkui)
 
 
 def add_line_to_csv(lines):
@@ -90,6 +160,7 @@ class LedThread(threading.Thread):
 try:
     # Continuar lendo os cartões RFID em um loop infinito
     while True:
+        tkui.update()
         # Lê a ID do cartão RFID
         id, text = reader.read()
         # Busca a ID do cartão no banco de dados
@@ -99,25 +170,50 @@ try:
             if usuario[2] is None:
                 print(f"Bem-vindo, {usuario[1]}!")
                 # Armazena a hora atual no campo entradad do banco de dados
+                entrada = datetime.datetime.now().strftime("%H:%M:%S")
                 cursor.execute(
                     "UPDATE usuarios SET entrada=? WHERE id=?",
-                    (datetime.datetime.now(), id),
+                    (entrada, id),
                 )
                 verde = LedThread(12)  # Cria uma thread para o LED verde
                 verde.start()  # Inicia a thread
-                ativar_servo()
+                # Define as novas informações na interface gráfica
+                iterface.update_info(
+                    name=usuario[1],
+                    enter=entrada,
+                    left="",
+                    time="",
+                    date=datetime.date.today().strftime("%d/%m/%Y"),
+                )
+                # ativar_servo()
             else:
                 print(f"Até logo, {usuario[1]}!")
+                entrada = usuario[2]  # Armazena a hora de entrada antes de ser limpada
                 # Limpa o campo entrada
                 cursor.execute("UPDATE usuarios SET entrada=NULL WHERE id=?", (id,))
+                leftime = datetime.datetime.now().strftime("%H:%M:%S")
                 # Adiciona ID, nome, entrada e saída no arquivo csv
-                line = [id, usuario[1], usuario[2], datetime.datetime.now()]
+                line = [id, usuario[1], usuario[2], leftime]
                 line_str = map(str, line)
                 add_line_to_csv(line_str)
                 azul = LedThread(36)  # Cria uma thread para o LED azul
                 azul.start()  # Inicia a thread
-                ativar_servo()
+                # calcula a diferença entre a hora de entrada e saída
+                time_diff = datetime.datetime.strptime(
+                    leftime, "%H:%M:%S"
+                ) - datetime.datetime.strptime(entrada, "%H:%M:%S")
+                # Define as novas informações na interface gráfica
+                iterface.update_info(
+                    name=usuario[1],
+                    enter=usuario[2],
+                    left=leftime,
+                    time=time_diff,
+                    date=datetime.date.today().strftime("%d/%m/%Y"),
+                )
+                # ativar_servo()
             db.commit()  # Salva as alterações no banco de dados
+            # Aplica as alterações na interface gráfica
+            tkui.update()
         else:
             print("ID de cartão não encontrado.")
             vermelho = LedThread(7)  # Cria uma thread para o LED vermelho
