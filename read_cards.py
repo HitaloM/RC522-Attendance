@@ -175,8 +175,6 @@ try:
                     "UPDATE usuarios SET entrada=? WHERE id=?",
                     (entrada, id),
                 )
-                verde = LedThread(12)  # Cria uma thread para o LED verde
-                verde.start()  # Inicia a thread
                 # Define as novas informações na interface gráfica
                 iterface.update_info(
                     name=usuario[1],
@@ -185,6 +183,8 @@ try:
                     time="",
                     date=datetime.date.today().strftime("%d/%m/%Y"),
                 )
+                verde = LedThread(12)  # Cria uma thread para o LED verde
+                verde.start()  # Inicia a thread
                 ativar_servo()
             else:
                 print(f"Até logo, {usuario[1]}!")
@@ -196,8 +196,6 @@ try:
                 line = [id, usuario[1], usuario[2], leftime]
                 line_str = map(str, line)
                 add_line_to_csv(line_str)
-                azul = LedThread(36)  # Cria uma thread para o LED azul
-                azul.start()  # Inicia a thread
                 # calcula a diferença entre a hora de entrada e saída
                 time_diff = datetime.datetime.strptime(
                     leftime, "%H:%M:%S"
@@ -210,6 +208,8 @@ try:
                     time=time_diff,
                     date=datetime.date.today().strftime("%d/%m/%Y"),
                 )
+                azul = LedThread(36)  # Cria uma thread para o LED azul
+                azul.start()  # Inicia a thread
                 ativar_servo()
             db.commit()  # Salva as alterações no banco de dados
             # Aplica as alterações na interface gráfica
