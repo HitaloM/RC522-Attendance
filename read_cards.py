@@ -84,14 +84,15 @@ class App(tk.Tk):
         self.date = tk.Label(self.frame_right, text="", font=("Helvetica", 20))
         self.date.grid(row=4, column=1)
 
-        self.update_info("", "", "", "", "")
+        self.update_info("", "", "", "", "", "image.png")
 
-    def update_info(self, name, enter, left, time, date):
+    def update_info(self, name, enter, left, time, date, image):
         self.name.configure(text=name)
         self.enter.configure(text=enter)
         self.left.configure(text=left)
         self.time.configure(text=time)
         self.date.configure(text=date)
+        self.image.configure(file=image)
 
 
 # Criar widget principal
@@ -136,7 +137,7 @@ def ativar_servo():
 
     # Retorne o servo motor para a posição inicial de 0 graus
     servo.ChangeDutyCycle(7.5)
-    time.sleep(3)
+    time.sleep(1)
 
     # Interrompa o PWM
     servo.stop()
@@ -184,6 +185,7 @@ try:
                     left="",
                     time="",
                     date=datetime.date.today().strftime("%d/%m/%Y"),
+                    image=usuario[3],
                 )
                 verde = LedThread(12)  # Cria uma thread para o LED verde
                 verde.start()  # Inicia a thread
@@ -209,6 +211,7 @@ try:
                     left=leftime,
                     time=time_diff,
                     date=datetime.date.today().strftime("%d/%m/%Y"),
+                    image=usuario[3],
                 )
                 azul = LedThread(36)  # Cria uma thread para o LED azul
                 azul.start()  # Inicia a thread

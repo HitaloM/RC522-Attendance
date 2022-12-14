@@ -16,7 +16,8 @@ cursor.execute(
     CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY,
         nome TEXT,
-        entrada DATETIME
+        entrada DATETIME,
+        image TEXT
     )
     """
 )
@@ -25,6 +26,7 @@ try:
     while True:
         # Pede o nome da pessoa que está se registrando
         name = input("Digite o nome da pessoa que está se registrando: ")
+        image = input("Digite o caminho da imagem da pessoa que está se registrando: ")
 
         # Lê o cartão RFID
         print("Posicione o cartão RFID no leitor...")
@@ -33,10 +35,11 @@ try:
 
         # Salva o ID do cartão e o nome da pessoa no banco de dados
         cursor.execute(
-            "INSERT INTO usuarios (id, nome, entrada) VALUES (?, ?, NULL)",
+            "INSERT INTO usuarios (id, nome, image, entrada) VALUES (?, ?, ?, NULL)",
             (
                 id,
                 name,
+                image,
             ),
         )
         db.commit()
