@@ -12,6 +12,9 @@ from mfrc522 import SimpleMFRC522
 # Inicializar o módulo RFID
 reader = SimpleMFRC522()
 
+# Configurar o modo de numeração dos pinos
+GPIO.setmode(GPIO.BOARD)
+
 # Conectar ao banco de dados SQLite
 db = sqlite3.connect("database.sqlite")
 cursor = db.cursor()
@@ -119,7 +122,6 @@ def add_line_to_csv(lines):
 
 def ativar_servo():
     # Configure o pino do servo motor
-    GPIO.setmode(GPIO.BOARD)
     GPIO.setup(37, GPIO.OUT)
 
     # Crie um objeto PWM para controlar o servo motor
@@ -134,7 +136,7 @@ def ativar_servo():
 
     # Retorne o servo motor para a posição inicial de 0 graus
     servo.ChangeDutyCycle(7.5)
-    time.sleep(1)
+    time.sleep(3)
 
     # Interrompa o PWM
     servo.stop()
